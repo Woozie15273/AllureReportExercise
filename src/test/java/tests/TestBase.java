@@ -10,6 +10,7 @@ import org.testng.annotations.*;
 
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.regex.Pattern;
 
 public class TestBase {
 
@@ -36,7 +37,7 @@ public class TestBase {
         );
     }
 
-    @AfterClass
+    // @AfterClass
     void closeBrowser() {
         playwright.close();
     }
@@ -59,6 +60,10 @@ public class TestBase {
     public void assertHomePageLoaded() {
         assertThat(page).hasURL(website);
         assertThat(page.locator("//div[contains(@class,'logo')]")).isVisible();
+    }
+
+    public void assertPageToHavePartialURL(String regex) {
+        assertThat(page).hasURL(Pattern.compile(regex));
     }
 
     private void traceViewerManager(BrowserContext context){

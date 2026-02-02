@@ -12,24 +12,24 @@ import java.util.regex.Pattern;
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
 public class ProductsTest extends TestBase{
-    private ProductsPage product;
+    private ProductsPage products;
 
     @BeforeMethod
     public void setupPage() {
-        product = new ProductsPage(page);
-        product.open();
+        products = new ProductsPage(page);
+        products.open();
         // Verify user is navigated to ALL PRODUCTS page successfully
-        assertThat(page).hasURL(Pattern.compile(".*/products.*"));
+        assertPageToHavePartialURL(".*/products.*");
     }
 
     @Test
     public void testProductDetailsPage() {
         // Test Case 8: Verify All Products and product detail page
-        Locator e = product.getAvailableProducts().getFirst();
+        Locator e = products.getAvailableProducts().nth(0);
         assertThat(e).isVisible(); // Verify if The products list is visible
-        product.viewProduct(e);
+        products.viewProduct(e);
         // Verify that detail is visible: product name, category, price, availability, condition, brand
-        for (Locator l : product.productDetails.getProductDetails()) {
+        for (Locator l : products.productDetails.getProductDetails()) {
             assertThat(l).isVisible();
         }
     }
@@ -37,15 +37,15 @@ public class ProductsTest extends TestBase{
     @Test
     public void testSearchProduct() {
         // Test Case 9: Search Product
-        product.searchRandomProduct();
+        products.searchRandomProduct();
         assertThat(page.getByText("Searched Products")).isVisible(); // Verify 'SEARCHED PRODUCTS' is visible
-        assertThat(product.getAvailableProducts().getFirst()).isVisible(); // Verify all the products related to search are visible
+        assertThat(products.getAvailableProducts().nth(0)).isVisible(); // Verify all the products related to search are visible
     }
 
     @Test
     public void testViewCategories() {
         // Test Case 18: View Category Products
-        Locator categoryPanels = product.categoryProducts.categoryContainer.locator(".panel");
+        Locator categoryPanels = products.categoryProducts.categoryContainer.locator(".panel");
 
         for (int i = 0; i < categoryPanels.count(); i++) {
             Locator panel = categoryPanels.nth(i);
@@ -68,7 +68,7 @@ public class ProductsTest extends TestBase{
 
                 // Assert the header update
                 String expectedPattern = String.format(".*%s - %s Products.*", catName, subName);
-                assertThat(product.getFeaturesItemsTitle())
+                assertThat(products.getFeaturesItemsTitle())
                         .hasText(Pattern.compile(expectedPattern, Pattern.CASE_INSENSITIVE));
 
                 categoryLink.click(); // Re-expand the parent category to see the sub-links again.
@@ -80,7 +80,7 @@ public class ProductsTest extends TestBase{
     public void testViewBrands() {
         // Test Case 19: View & Cart Brand Products
         // Iterate all brands and validate their navigation
-        Locator brands = product.brandProducts.brandsContainer.locator(".brands-name li");
+        Locator brands = products.brandProducts.brandsContainer.locator(".brands-name li");
 
         List<String> names = brands.allInnerTexts().stream()
                 .map(s -> s.replaceAll("\\(\\d+\\)", "").trim())
@@ -90,7 +90,7 @@ public class ProductsTest extends TestBase{
             brands.nth(i).click();
 
             // Verification
-            assertThat(product.getFeaturesItemsTitle())
+            assertThat(products.getFeaturesItemsTitle())
                     .hasText(Pattern.compile(".*" + names.get(i) + ".*", Pattern.CASE_INSENSITIVE));
         }
     }
@@ -100,11 +100,11 @@ public class ProductsTest extends TestBase{
         // Test Case 21: Add review on product
         DataGenerator data = new DataGenerator();
 
-        Locator e = product.getAvailableProducts().getFirst();
-        product.viewProduct(e);
-        assertThat(product.productDetails.reviewTitle).isVisible(); // Verify 'Write Your Review' is visible
-        product.productDetails.submitReview(data.review);
-        assertThat(product.productDetails.reviewSucceedPrompt).isVisible(); // Verify success message 'Thank you for your review.'
+        Locator e = products.getAvailableProducts().nth(0);
+        products.viewProduct(e);
+        assertThat(products.productDetails.reviewTitle).isVisible(); // Verify 'Write Your Review' is visible
+        products.productDetails.submitReview(data.review);
+        assertThat(products.productDetails.reviewSucceedPrompt).isVisible(); // Verify success message 'Thank you for your review.'
     }
 
 }

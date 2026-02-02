@@ -18,12 +18,24 @@ public class ProductsPage extends BasePage {
         this.productDetails = new ProductDetails();
     }
 
+    public record productInfo(
+            String productName,
+            String price
+    ) {}
+
+    public productInfo getProductInfoFromWrapper(Locator productWrapper) {
+        return new productInfo(
+                productWrapper.locator(".productinfo p").innerText(),
+                productWrapper.locator(".productinfo h2").innerText()
+        );
+    }
+
     public void open() {
         navigation.goToProducts();
     }
 
-    public List<Locator> getAvailableProducts() {
-        return page.locator(".product-image-wrapper").all();
+    public Locator getAvailableProducts() {
+        return page.locator(".product-image-wrapper");
     }
 
     public Locator getFeaturesItemsTitle() {
@@ -45,8 +57,14 @@ public class ProductsPage extends BasePage {
         searchProduct(l.nth(index).innerText().trim());
     }
 
-    public void addToCart(Locator productWrapper) {
-        productWrapper.getByText("Add to cart").click();
+    public void addToCartFromHoverOver(Locator productWrapper) {
+        productWrapper
+                .locator(".productinfo")
+                .hover();
+        productWrapper
+                .locator(".overlay-content")
+                .getByText("Add to cart")
+                .click();
     }
 
     public class CategoryProducts {
@@ -73,6 +91,7 @@ public class ProductsPage extends BasePage {
         public final Locator category;
         public final Locator price;
         public final Locator quantity;
+        public final Locator addToCart;
         public final Locator availability;
         public final Locator condition;
         public final Locator brand;
@@ -91,6 +110,7 @@ public class ProductsPage extends BasePage {
             category = infoSection.getByText("Category:");
             price = infoSection.getByText("Rs.");
             quantity = infoSection.locator("#quantity");
+            addToCart = infoSection.getByText("Add to cart");
             availability = infoSection.getByText("Availability:").locator("..");
             condition = infoSection.getByText("Condition:").locator("..");
             brand = infoSection.getByText("Brand:").locator("..");
@@ -104,6 +124,10 @@ public class ProductsPage extends BasePage {
             reviewSucceedPrompt = reviewSection.getByText("Thank you for your review.");
         }
 
+        public void editQuantity(int amount) {
+            quantity.fill(String.valueOf(amount));
+        }
+
         public List<Locator> getProductDetails() {
             return Arrays.asList(
                     productName,
@@ -115,17 +139,24 @@ public class ProductsPage extends BasePage {
             );
         }
 
-        public Map<String, String> getProductDetailsToMap() {
-            Map<String, String> details = new LinkedHashMap<>();
+        public record detailsFromPage(
+                String productName,
+                String category,
+                String price,
+                String availability,
+                String condition,
+                String brand
+        ) {}
 
-            details.put("Product Name", productName.innerText());
-            details.put("Category", category.innerText());
-            details.put("Price", price.innerText());
-            details.put("Availability", availability.innerText().split(": ")[1]);
-            details.put("Condition", condition.innerText().split(": ")[1]);
-            details.put("Brand", brand.innerText().split(": ")[1]);
-
-            return details;
+        public detailsFromPage getDetailsFromPage() {
+            return new detailsFromPage(
+                    productName.innerText(),
+                    category.innerText(),
+                    price.innerText(),
+                    availability.innerText().split(": ")[1],
+                    condition.innerText().split(": ")[1],
+                    brand.innerText().split(": ")[1]
+            );
         }
 
         public void submitReview(ProductReview data) {

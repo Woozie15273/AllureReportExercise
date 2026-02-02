@@ -3,14 +3,19 @@ package tests;
 import com.microsoft.playwright.Locator;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
 import java.util.List;
 
 import pages.CartPage;
+import pages.CartPage.CartInfo.currentEntries;
 import pages.HomePage;
 import pages.LoginPage;
 import pages.ProductsPage;
+import pages.ProductsPage.productInfo;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 
 public class CartTest extends TestBase {
 
@@ -38,42 +43,108 @@ public class CartTest extends TestBase {
         assertThat(cart.footer.subscriptionText).isVisible();
     }
 
+    @Test
+    public void testAddProductsToCart() {
+        // Test Case 12: Add Products in Cart
+        home.navigation.goToProducts();
+        Locator allProducts = products.getAvailableProducts();
 
-    // Test Case 12: Add Products in Cart
-    // 4. Click 'Products' button
-    // 5. Hover over first product and click 'Add to cart'
-    // 6. Click 'Continue Shopping' button
-    // 7. Hover over second product and click 'Add to cart'
-    // 8. Click 'View Cart' button
-    // 9. Verify both products are added to Cart
-    // 10. Verify their prices, quantity and total price
+        // Add first product
+        Locator p1 = allProducts.nth(0);
+        productInfo info1 = products.getProductInfoFromWrapper(p1);
+        products.addToCartFromHoverOver(p1);
+        products.cartModal.continueShopping();
 
-    // Test Case 13: Verify Product quantity in Cart
-    // 4. Click 'View Product' for any product on home page
-    // 5. Verify product detail is opened
-    // 6. Increase quantity to 4
-    // 7. Click 'Add to cart' button
-    // 8. Click 'View Cart' button
-    // 9. Verify that product is displayed in cart page with exact quantity
+        // Add second product
+        Locator p2 = allProducts.nth(1);
+        productInfo info2 = products.getProductInfoFromWrapper(p2);
+        products.addToCartFromHoverOver(p2);
+        products.cartModal.viewCart();
 
-    // Test Case 17: Remove Products From Cart
-    // 4. Add products to cart
-    // 5. Click 'Cart' button
-    // 6. Verify that cart page is displayed
-    // 7. Click 'X' button corresponding to particular product
-    // 8. Verify that product is removed from the cart
+        List<currentEntries> actualCart = cart.cartInfo.getCurrentItemsFromCart();
 
-    // Test Case 20: Search Products and Verify Cart After Login
-    // 3. Click on 'Products' button
-    // 4. Verify user is navigated to ALL PRODUCTS page successfully
-    // 5. Enter product name in search input and click search button
-    // 6. Verify 'SEARCHED PRODUCTS' is visible
-    // 7. Verify all the products related to search are visible
-    // 8. Add those products to cart
-    // 9. Click 'Cart' button and verify that products are visible in cart
-    // 10. Click 'Signup / Login' button and submit login details
-    // 11. Again, go to Cart page
-    // 12. Verify that those products are visible in cart after login as well
+        // Verify both products are added to Cart
+        // Verify their prices, quantity and total price
+        assertThat(actualCart)
+                .extracting(currentEntries::itemName, currentEntries::price)
+                .containsExactlyInAnyOrder(
+                        tuple(info1.productName(), info1.price()),
+                        tuple(info2.productName(), info2.price())
+                );
+    }
+
+    @Test
+    public void testProductQuantityInCart() {
+        // Test Case 13: Verify Product quantity in Cart
+        home.navigation.goToProducts();
+        Locator p = products.getAvailableProducts().nth(0);
+        products.viewProduct(p);
+
+        assertPageToHavePartialURL(".*/product_details/.*"); // Verify product detail is opened
+        String currentProduct = products.productDetails.productName.innerText();
+        int amount = 4;
+        products.productDetails.editQuantity(amount);
+        products.productDetails.addToCart.click();
+        products.cartModal.viewCart();
+
+        List<currentEntries> actualCart = cart.cartInfo.getCurrentItemsFromCart();
+
+        // Verify that product is displayed in cart page with exact quantity
+        assertThat(actualCart)
+                .extracting(currentEntries::itemName, currentEntries::quantity)
+                .containsExactly(tuple(currentProduct, String.valueOf(amount)));
+    }
+
+    @Test
+    public void testRemoveProductsFromCart() {
+        // Test Case 17: Remove Products From Cart
+        home.navigation.goToProducts();
+
+        Locator p = products.getAvailableProducts().nth(0);
+        String itemName = products.getProductInfoFromWrapper(p).productName();
+
+        products.addToCartFromHoverOver(p);
+        products.cartModal.continueShopping();
+        products.navigation.goToCart();
+
+        assertPageToHavePartialURL(".*/view_cart.*"); // Verify that cart page is displayed
+
+        cart.removeProduct(itemName);
+        // Verify that product is removed from the cart
+        assertThat(page.locator("tr").filter(new Locator.FilterOptions().setHasText(itemName))).isHidden();
+    }
+
+    @Test
+    public void testCartIsSavedAfterLogin(){
+        // Test Case 20: Search Products and Verify Cart After Login
+        home.navigation.goToLogin();
+        String[] credential = login.setupDummyAccount();
+        String email = credential[0];
+        String pwd = credential[1];
+
+        home.navigation.goToProducts();
+        // Verify user is navigated to ALL PRODUCTS page successfully
+        assertPageToHavePartialURL(".*/products.*");
+
+        products.searchRandomProduct();
+        Locator p = products.getAvailableProducts().nth(0);
+        String itemName = products.getProductInfoFromWrapper(p).productName();
+        assertThat(page.getByText("Searched Products")).isVisible(); // Verify 'SEARCHED PRODUCTS' is visible
+        assertThat(p).isVisible(); // Verify all the products related to search are visible
+
+        products.addToCartFromHoverOver(p);
+        products.cartModal.viewCart();
+        // Verify that products are visible in cart
+        assertThat(page.locator("tr").filter(new Locator.FilterOptions().setHasText(itemName))).isVisible();
+
+        home.navigation.goToLogin();
+        login.login.login(email, pwd);
+        home.navigation.goToCart();
+        // Verify that those products are visible in cart after login as well
+        assertThat(page.locator("tr").filter(new Locator.FilterOptions().setHasText(itemName))).isVisible();
+
+    }
+
 
     @Test
     public void testAddRecommendedToCart() {
@@ -97,7 +168,6 @@ public class CartTest extends TestBase {
             cart.cartModal.continueShopping();
         }
 
-        // Get current cart entries
         cart.navigation.goToCart();
 
         // Verify that all selected products are displayed in cart page

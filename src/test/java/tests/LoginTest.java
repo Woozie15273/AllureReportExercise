@@ -5,8 +5,6 @@ import org.testng.annotations.Test;
 import pages.LoginPage;
 import utilities.DataGenerator;
 
-import java.util.regex.Pattern;
-
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
 public class LoginTest extends TestBase {
@@ -39,7 +37,7 @@ public class LoginTest extends TestBase {
 
     @Test
     public void testLoginUser() {
-        String[] user = setupDummyAccount();
+        String[] user = login.setupDummyAccount();
         String email = user[0];
         String password = user[1];
 
@@ -63,7 +61,7 @@ public class LoginTest extends TestBase {
     @Test
     public void testLogoutUser() {
         // Test Case 4: Logout User
-        String[] user = setupDummyAccount();
+        String[] user = login.setupDummyAccount();
         String email = user[0];
         String password = user[1];
 
@@ -71,15 +69,15 @@ public class LoginTest extends TestBase {
         login.login.login(email, password);
         assertThat(login.getCurrentUser()).isVisible(); // Verify that 'Logged in as username' is visible
         login.logout();
-        assertThat(page).hasURL(Pattern.compile(".*/login.*"));
+        assertPageToHavePartialURL(".*/login.*");
 
-        deleteDummyAccount(email, password);
+        login.deleteDummyAccount(email, password);
     }
 
     @Test
     public void testRegisterDuplicatedEmail() {
         // Test Case 5: Register User with existing email
-        String[] user = setupDummyAccount();
+        String[] user = login.setupDummyAccount();
         String email = user[0];
         String password = user[1];
         String name = user[2];
@@ -88,26 +86,7 @@ public class LoginTest extends TestBase {
         login.signup.signUp(name, email);
         assertThat(login.getDuplicatedEmailPrompt()).isVisible(); // Verify error 'Email Address already exist!' is visible
 
-        deleteDummyAccount(email, password); // Cleanup
+        login.deleteDummyAccount(email, password); // Cleanup
     }
-
-    private String[] setupDummyAccount() {
-        login.signup.signUp(data.signup);
-        login.accountInfo.fillInAccountInfo(data.signup);
-        login.addressInfo.fillInAddressInfo(data.signup);
-        login.createAccount();
-        login.clickContinue();
-        login.logout();
-
-        return new String[] { data.signup.email, data.signup.password, data.signup.fullName };
-    }
-
-    private void deleteDummyAccount(String email, String pwd) {
-        login.navigation.goToLogin();
-        login.login.login(email, pwd);
-        login.deleteAccount();
-        login.clickContinue();
-    }
-
 
 }
