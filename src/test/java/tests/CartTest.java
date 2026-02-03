@@ -12,6 +12,8 @@ import pages.HomePage;
 import pages.LoginPage;
 import pages.ProductsPage;
 import pages.ProductsPage.productInfo;
+import utilities.DataGenerator;
+import utilities.DataGenerator.SignupCredential;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -117,10 +119,10 @@ public class CartTest extends TestBase {
     @Test
     public void testCartIsSavedAfterLogin(){
         // Test Case 20: Search Products and Verify Cart After Login
+        SignupCredential credential = new DataGenerator().signup;
+
         home.navigation.goToLogin();
-        String[] credential = login.setupDummyAccount();
-        String email = credential[0];
-        String pwd = credential[1];
+        login.setupDummyAccount(credential);
 
         home.navigation.goToProducts();
         // Verify user is navigated to ALL PRODUCTS page successfully
@@ -138,11 +140,13 @@ public class CartTest extends TestBase {
         assertThat(page.locator("tr").filter(new Locator.FilterOptions().setHasText(itemName))).isVisible();
 
         home.navigation.goToLogin();
-        login.login.login(email, pwd);
+        login.login.login(credential.email, credential.password);
         home.navigation.goToCart();
         // Verify that those products are visible in cart after login as well
         assertThat(page.locator("tr").filter(new Locator.FilterOptions().setHasText(itemName))).isVisible();
 
+        login.deleteAccount();
+        login.clickContinue();
     }
 
 

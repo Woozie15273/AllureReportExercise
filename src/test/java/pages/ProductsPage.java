@@ -57,6 +57,22 @@ public class ProductsPage extends BasePage {
         searchProduct(l.nth(index).innerText().trim());
     }
 
+    public String addFirstAvailableItem() {
+        Locator selectedItem = getAvailableProducts().nth(0);
+        String itemName = selectedItem.locator(".productinfo p").innerText().trim();
+        addToCartFromHoverOver(selectedItem);
+        return itemName;
+    }
+
+    public String addRandomProductToCart() {
+        Locator l = getAvailableProducts();
+        int index = new Random().nextInt(l.count());
+        Locator selectedItem = l.nth(index);
+        String itemName = selectedItem.locator(".productinfo p").innerText().trim();
+        addToCartFromHoverOver(selectedItem);
+        return itemName;
+    }
+
     public void addToCartFromHoverOver(Locator productWrapper) {
         productWrapper
                 .locator(".productinfo")

@@ -37,7 +37,7 @@ public class TestBase {
         );
     }
 
-    // @AfterClass
+    @AfterClass
     void closeBrowser() {
         playwright.close();
     }
@@ -59,7 +59,7 @@ public class TestBase {
 
     public void assertHomePageLoaded() {
         assertThat(page).hasURL(website);
-        assertThat(page.locator("//div[contains(@class,'logo')]")).isVisible();
+        assertThat(page.locator("div.logo")).isVisible();
     }
 
     public void assertPageToHavePartialURL(String regex) {

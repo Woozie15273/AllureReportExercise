@@ -4,16 +4,17 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import pages.LoginPage;
 import utilities.DataGenerator;
+import utilities.DataGenerator.SignupCredential;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
 public class LoginTest extends TestBase {
     private LoginPage login;
-    private DataGenerator data;
+    private SignupCredential credential;
 
     @BeforeMethod
     public void setupPage() {
-        data = new DataGenerator();
+        credential = new DataGenerator().signup;
         login = new LoginPage(page);
         login.navigation.goToLogin();
     }
@@ -22,10 +23,10 @@ public class LoginTest extends TestBase {
     public void testRegisterUser() {
         // Test Case 1: Register User
         assertThat(login.signup.signupTitle).isVisible();
-        login.signup.signUp(data.signup);
+        login.signup.signUp(credential);
         assertThat(login.accountInfo.accountInfoTitle).isVisible(); // Verify 'Enter Account Information' is visible
-        login.accountInfo.fillInAccountInfo(data.signup);
-        login.addressInfo.fillInAddressInfo(data.signup);
+        login.accountInfo.fillInAccountInfo(credential);
+        login.addressInfo.fillInAddressInfo(credential);
         login.createAccount();
         assertThat(login.getAccountCreatedPrompt()).isVisible(); // Verify that 'ACCOUNT CREATED!' is visible
         login.clickContinue();
@@ -37,12 +38,10 @@ public class LoginTest extends TestBase {
 
     @Test
     public void testLoginUser() {
-        String[] user = login.setupDummyAccount();
-        String email = user[0];
-        String password = user[1];
+        login.setupDummyAccount(credential);
 
         assertThat(login.login.loginTitle).isVisible(); // Verify 'Login to your account' is visible
-        login.login.login(email, password);
+        login.login.login(credential.email, credential.password);
         assertThat(login.getCurrentUser()).isVisible(); // Verify 'Login to your account' is visible
         login.deleteAccount();
         assertThat(login.getAccountDeletedPrompt()).isVisible();
@@ -51,19 +50,17 @@ public class LoginTest extends TestBase {
     @Test
     public void testLoginIncorrectCredential() {
         // Test Case 3: Login User with incorrect email and password
-        String email = data.signup.email;
-        String pwd = data.signup.password;
         assertThat(login.login.loginTitle).isVisible(); // Verify 'Login to your account' is visible
-        login.login.login(email, pwd);
+        login.login.login(credential.email, credential.password);
         assertThat(login.getIncorrectLoginPrompt()).isVisible();
     }
 
     @Test
     public void testLogoutUser() {
         // Test Case 4: Logout User
-        String[] user = login.setupDummyAccount();
-        String email = user[0];
-        String password = user[1];
+        login.setupDummyAccount(credential);
+        String email = credential.email;
+        String password = credential.password;
 
         assertThat(login.login.loginTitle).isVisible(); // Verify 'Login to your account' is visible
         login.login.login(email, password);
@@ -77,10 +74,10 @@ public class LoginTest extends TestBase {
     @Test
     public void testRegisterDuplicatedEmail() {
         // Test Case 5: Register User with existing email
-        String[] user = login.setupDummyAccount();
-        String email = user[0];
-        String password = user[1];
-        String name = user[2];
+        login.setupDummyAccount(credential);
+        String email = credential.email;
+        String password = credential.password;
+        String name = credential.fullName;
 
         assertThat(login.signup.signupTitle).isVisible(); // Verify 'New User Signup!' is visible
         login.signup.signUp(name, email);

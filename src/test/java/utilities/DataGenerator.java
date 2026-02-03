@@ -12,11 +12,13 @@ public class DataGenerator {
     public final ContactUs contactUs;
     public final SignupCredential signup;
     public final ProductReview review;
+    public final CreditCard creditCard;
 
     public DataGenerator() {
         this.contactUs = new ContactUs();
         this.signup = new SignupCredential();
         this.review = new ProductReview();
+        this.creditCard = new CreditCard();
     }
 
     public class ContactUs {
@@ -90,6 +92,18 @@ public class DataGenerator {
             name = getName();
             email = getInbox(name);
             review = faker.lorem().paragraph();
+        }
+    }
+
+    public class CreditCard {
+        public String cardNumber;
+        public String cvc;
+        public String expireDate;
+
+        public CreditCard() {
+            cardNumber = faker.business().creditCardNumber().replaceAll("-", "");
+            cvc = faker.business().securityCode();
+            expireDate = faker.business().creditCardExpiry(); // e.g. 2046-02-02
         }
     }
 

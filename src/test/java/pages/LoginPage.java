@@ -4,7 +4,6 @@ import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 
 import com.microsoft.playwright.options.SelectOption;
-import utilities.DataGenerator;
 import utilities.DataGenerator.SignupCredential;
 
 public class LoginPage extends BasePage {
@@ -209,17 +208,13 @@ public class LoginPage extends BasePage {
         clickOnByText("Logout");
     }
 
-    public String[] setupDummyAccount() {
-        DataGenerator data = new DataGenerator();
-
-        signup.signUp(data.signup);
-        accountInfo.fillInAccountInfo(data.signup);
-        addressInfo.fillInAddressInfo(data.signup);
+    public void setupDummyAccount(SignupCredential credential) {
+        signup.signUp(credential);
+        accountInfo.fillInAccountInfo(credential);
+        addressInfo.fillInAddressInfo(credential);
         createAccount();
         clickContinue();
         logout();
-
-        return new String[] { data.signup.email, data.signup.password, data.signup.fullName };
     }
 
     public void deleteDummyAccount(String email, String pwd) {

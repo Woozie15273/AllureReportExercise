@@ -8,10 +8,12 @@ import java.util.List;
 
 public class CartPage extends BasePage {
     public final CartInfo cartInfo;
+    public final CheckoutModal checkoutModal;
 
     public CartPage(Page page) {
         super(page);
         this.cartInfo = new CartInfo();
+        this.checkoutModal = new CheckoutModal();
     }
 
     public void removeProduct(String itemName) {
@@ -20,7 +22,7 @@ public class CartPage extends BasePage {
     }
 
     public void toCheckout() {
-        page.getByText("Proceed To Checkout").click();
+        clickOnByText("Proceed To Checkout");
     }
 
     public class CartInfo {
@@ -62,6 +64,22 @@ public class CartPage extends BasePage {
             }
 
             return items;
+        }
+    }
+
+    public class CheckoutModal {
+        public final Locator modal;
+
+        public CheckoutModal() {
+            modal = page.locator(".modal-content");
+        }
+
+        public void toRegister() {
+            modal.locator("a[href='/login']").click();
+        }
+
+        public void continueOnCart() {
+            modal.getByText("Continue On Cart").click();
         }
     }
 
