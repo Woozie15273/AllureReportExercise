@@ -34,17 +34,9 @@ jobs:
           cache: 'maven'
 
       - name: Run Tests
-        run: |
-          # Force the environment to recognize JDK 25 for this step
-          export JAVA_HOME=$JAVA_HOME_25_X64
-          export PATH=$JAVA_HOME/bin:$PATH
-          
-          # Verify the version before running Maven
-          mvn -version
-          
+        run: |         
           # Run your tests
           mvn clean test -DsuiteXmlFile=testng.xml -Dgroups=${{ github.event.inputs.test_type || 'smoke' }}
-        continue-on-error: true
 
       - name: Generate Allure Report
         if: always()
