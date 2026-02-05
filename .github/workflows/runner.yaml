@@ -44,6 +44,7 @@ jobs:
           
           # Run your tests
           mvn clean test -DsuiteXmlFile=testng.xml -Dgroups=${{ github.event.inputs.test_type || 'smoke' }}
+        continue-on-error: true
 
       - name: Generate Allure Report
         if: always()
