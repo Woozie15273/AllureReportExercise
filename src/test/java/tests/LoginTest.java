@@ -8,6 +8,7 @@ import utilities.DataGenerator.SignupCredential;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
+@Test(groups = {"regression"})
 public class LoginTest extends TestBase {
     private LoginPage login;
     private SignupCredential credential;

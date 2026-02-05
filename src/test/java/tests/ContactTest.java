@@ -8,6 +8,7 @@ import utilities.DataGenerator;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
+@Test(groups = {"regression"})
 public class ContactTest extends TestBase {
 
     private ContactPage contact;

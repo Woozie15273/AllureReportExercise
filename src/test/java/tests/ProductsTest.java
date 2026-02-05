@@ -11,7 +11,8 @@ import java.util.regex.Pattern;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
-public class ProductsTest extends TestBase{
+@Test(groups = {"regression", "smoke"})
+public class ProductsTest extends TestBase {
     private ProductsPage products;
 
     @BeforeMethod

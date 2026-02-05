@@ -6,6 +6,7 @@ import pages.HomePage;
 
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
+@Test(groups = {"regression"})
 public class HomeTest extends TestBase {
     private HomePage home;
 

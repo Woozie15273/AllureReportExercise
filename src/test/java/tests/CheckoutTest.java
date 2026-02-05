@@ -12,7 +12,8 @@ import java.util.stream.Stream;
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CheckoutTest extends TestBase{
+@Test(groups = {"regression", "smoke"})
+public class CheckoutTest extends TestBase {
 
     private HomePage home;
     private ProductsPage products;
