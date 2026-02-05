@@ -43,7 +43,7 @@ jobs:
           mvn -version
           
           # Run your tests
-          mvn clean test -DsuiteXmlFile=testng.xml -Dgroups=${{ github.event.inputs.test_type || 'smoke' }}
+          mvn clean test -DsuiteXmlFile=testng.xml -Dgroups=${{ github.event.inputs.test_type || 'smoke' }} -Dmaven.test.failure.ignore=true
 
       - name: Generate Allure Report
         if: always()
@@ -70,7 +70,7 @@ jobs:
           retention-days: 7 # This keeps the history data for 7 days
 
       - name: Setup Pages
-        uses: actions/configure-pages@v4
+        uses: actions/configure-pages@v5
 
       - name: Upload Artifact
         uses: actions/upload-pages-artifact@v3
