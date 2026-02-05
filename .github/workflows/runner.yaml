@@ -35,13 +35,15 @@ jobs:
 
       - name: Run Tests
         run: |
-          # Determine suite: if manual, use input; if push, default to smoke
-          SUITE_TYPE="${{ github.event.inputs.test_type || 'smoke' }}"
-          echo "Running $SUITE_TYPE tests..."
+          # Force the environment to recognize JDK 25 for this step
+          export JAVA_HOME=$JAVA_HOME_25_X64
+          export PATH=$JAVA_HOME/bin:$PATH
           
-          # This command points to your specific XML file
-          # Ensure your pom.xml is configured to accept the suiteXmlFile property
-          mvn clean test -DsuiteXmlFile=testng.xml -Dgroups=$SUITE_TYPE
+          # Verify the version before running Maven
+          mvn -version
+          
+          # Run your tests
+          mvn clean test -DsuiteXmlFile=testng.xml -Dgroups=${{ github.event.inputs.test_type || 'smoke' }}
 
       - name: Generate Allure Report
         if: always()
