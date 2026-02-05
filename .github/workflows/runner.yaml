@@ -43,7 +43,7 @@ jobs:
           mvn -version
           
           # Run your tests
-          mvn clean test -DsuiteXmlFile=testng.xml -Dgroups=${{ github.event.inputs.test_type || 'smoke' }} -Dmaven.test.failure.ignore=true
+          mvn clean test -DsuiteXmlFile=testng.xml -Dgroups=${{ github.event.inputs.test_type || 'smoke' }}
 
       - name: Generate Allure Report
         if: always()
